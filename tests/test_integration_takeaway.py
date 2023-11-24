@@ -1,7 +1,7 @@
-from lib.dish import *
-from lib.menu import *
-from lib.order import *
-from lib.receipt import *
+from lib.dish import Dish
+from lib.menu import Menu
+from lib.order import Order
+from lib.receipt import Receipt
 import pytest
 
 """
@@ -38,24 +38,12 @@ def test_add_three_dishes_to_menu_remove_one():
 
 """
 Given a menu
-If we try to remove a dish that has not been added,
-We receive an error
-"""
-def test_remove_dish_that_is_not_on_menu():
-    dish1 = Dish("Pasta", 10, 5)
-    menu = Menu()
-    with pytest.raises(Exception) as e:
-        menu.remove(dish1)
-    assert str(e.value) == "Dish cannot be removed as it is not on the menu"
-
-"""
-Given a menu
 If we add a number of items to that menu
 We are able to view a formatted version of the menu
 to see both the dishes and their prices
 """
 
-def test_menu_formatted():
+def test_view_menu_formatted():
     dish1 = Dish("Pizza", 10.50, 3)
     dish2 = Dish("Chips", 2.49, 6)
     dish3 = Dish("Ice Cream", 3, 5)
@@ -63,7 +51,7 @@ def test_menu_formatted():
     menu.add(dish1)
     menu.add(dish2)
     menu.add(dish3)
-    assert menu.view_menu() == ["Pizza: £10.50", "Chips: £2.49", "Ice Cream: £3.00"]
+    assert menu.view_menu() == "Pizza: £10.50\nChips: £2.49\nIce Cream: £3.00\n"
 
 """
 Given a menu
@@ -91,7 +79,7 @@ def test_add_item_not_on_menu():
     dish2 = Dish("Pasta", 7.50, 10)
     menu = Menu()
     menu.add(dish1)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     with pytest.raises(Exception) as e:
         order.add_to_order(dish2)
     assert str(e.value) == "Dish is not on the menu"
@@ -105,7 +93,7 @@ def test_add_item_to_order_that_exceeds_quantity_available():
     dish1 = Dish("Pizza", 9, 2)
     menu = Menu()
     menu.add(dish1)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     with pytest.raises(Exception) as e:
         order.add_to_order(dish1, 3)
     assert str(e.value) == "We only have 2 Pizza available, please reduce the quantity for your order."
@@ -123,7 +111,7 @@ def test_add_item_to_order_and_view_order_list():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1, 2)
     order.add_to_order(dish2)
     assert order.order_list == [[dish1, 2], [dish2, 1]]
@@ -139,7 +127,7 @@ def test_add_item_already_on_order_updates_quantity():
     dish1 = Dish("Pizza", 9, 5)
     menu = Menu()
     menu.add(dish1)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1, 2)
     order.add_to_order(dish1, 2)
     assert order.order_list == [[dish1, 4]]
@@ -155,7 +143,7 @@ def test_add_item_already_on_order_but_exceeds_availability():
     dish1 = Dish("Pizza", 9, 3)
     menu = Menu()
     menu.add(dish1)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1, 2)
     with pytest.raises(Exception) as e:
         order.add_to_order(dish1,2)
@@ -173,11 +161,11 @@ def test_remove_dish_from_order():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
-    order.add_to_order(dish1)
+    order = Order(menu, Receipt())
+    order.add_to_order(dish1,3)
     order.add_to_order(dish2,2)
-    order.remove_from_order(dish1)
-    assert order.order_list ==[[dish2,2]]
+    order.remove_from_order(dish2,2)
+    assert order.order_list ==[[dish1,3]]
 
 """
 Given an order
@@ -190,7 +178,7 @@ def test_reduce_quantity_of_dish_on_order():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1,3)
     order.add_to_order(dish2,2)
     order.remove_from_order(dish1,2)
@@ -207,7 +195,7 @@ def test_check_if_dish_is_on_order():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     assert order.check_dish_on_order(dish1) == True
     assert order.check_dish_on_order(dish2) == False
@@ -223,7 +211,7 @@ def test_view_order_in_formatted_way():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     order.add_to_order(dish2,2)
     assert order.view_order() == "1 x Pizza: £10.00\n2 x Chips: £7.00\n"
@@ -242,7 +230,7 @@ def test_order_confirmed_dish_availability_updated():
     menu.add(dish1)
     menu.add(dish2)
     menu.add(dish3)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     order.add_to_order(dish2,3)
     order.confirm_order()
@@ -262,7 +250,7 @@ def test_order_confirmed_dish_menu_updated():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     order.add_to_order(dish2,3)
     order.confirm_order()
@@ -278,11 +266,11 @@ def test_calculate_total_value_of_order_once_confirmed():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     order.add_to_order(dish2,2)
     order.confirm_order()
-    assert order.receipt.order_total() == 17
+    assert order.receipt_instance.order_total() == 17
 
 """
 Given an order which is confirmed
@@ -296,7 +284,7 @@ def test_check_receipt_once_order_confirmed():
     menu = Menu()
     menu.add(dish1)
     menu.add(dish2)
-    order = Order(menu)
+    order = Order(menu, Receipt())
     order.add_to_order(dish1)
     order.add_to_order(dish2,2)
     assert order.confirm_order() == "Order Confirmation:\n1 x Pizza: £10.00\n2 x Chips: £7.00\nTotal Order: £17.00"

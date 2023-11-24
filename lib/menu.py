@@ -7,12 +7,12 @@ class Menu():
         self.dishes.append(dish)
 
     def remove(self, dish):
-        if dish not in self.dishes:
-            raise Exception("Dish cannot be removed as it is not on the menu")
         self.dishes.remove(dish)
 
     def view_menu(self):
-        formatted_menu = [dish.format_item() for dish in self.dishes]
+        formatted_menu = ""
+        for item in self.dishes:
+            formatted_menu += f"{item.format_item()}\n"
         return formatted_menu
 
     def check_dish(self, dish):

@@ -1,5 +1,8 @@
 class Receipt():
-    def __init__(self, order):
+    def __init__(self):
+        pass
+
+    def add_order(self, order):
         self.order = order
 
     def order_total(self):
@@ -17,5 +20,5 @@ class Receipt():
             return f"£{total}"
 
     def get_receipt(self):
-        order_confirmation = f"Order Confirmation:\n{self.order.view_order()}Total Order: {self.format_total(self.order_total())}"
+        order_confirmation = f"Order Confirmation:\n{self.order.view_order()}Total Order: {self.order.order_list[0][0].format_price(self.order_total())}"
         return order_confirmation

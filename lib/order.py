@@ -1,13 +1,10 @@
-from lib.receipt import *
-from lib.menu import *
-from lib.dish import *
 
 class Order():
-    def __init__(self, menu):
+    def __init__(self, menu, receipt_instance):
         self.menu = menu
         self.order_list = []
         self.status = "Pending"
-        self.receipt = None
+        self.receipt_instance = receipt_instance
 
     def add_to_order(self, dish, quantity = 1):
         if not self.menu.check_dish(dish):
@@ -24,11 +21,11 @@ class Order():
             self.order_list.append([dish, quantity])
 
     def remove_from_order(self, dish, quantity = 1):
-        dish_to_update = [dish for dish in self.order_list]
-        if quantity == dish_to_update[0][1]:
+        dish_to_update = [item for item in self.order_list if item[0] == dish][0]
+        if quantity == dish_to_update[1]:
             self.order_list.remove([dish, quantity])
         else:
-            dish_to_update[0][1] -= quantity
+            dish_to_update[1] -= quantity
 
     def check_dish_on_order(self,dish):
         return [item[0] for item in self.order_list if item[0] == dish] != []
@@ -48,8 +45,8 @@ class Order():
             item[0].decrease_availability(item[1])
             if item[0].availability == 0:
                 self.menu.remove(item[0])
-        self.receipt = Receipt(self)
-        return self.receipt.get_receipt()
+        self.receipt_instance.add_order(self)
+        return self.receipt_instance.get_receipt()
 
 
 

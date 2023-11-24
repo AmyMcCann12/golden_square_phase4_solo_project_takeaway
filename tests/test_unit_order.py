@@ -1,4 +1,4 @@
-from lib.order import *
+from lib.order import Order
 from unittest.mock import Mock
 import pytest
 
@@ -7,7 +7,7 @@ Given I have an order
 it is initialised with an empty list of dishes
 """
 def test_order_initialised_with_empty_list_of_dishes():
-    order = Order("")
+    order = Order("", "")
     assert order.order_list == []
 
 """
@@ -20,7 +20,8 @@ def test_order_item_not_on_menu():
     dish_mock = Mock()
     menu_mock = Mock()
     menu_mock.check_dish.return_value = False
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     with pytest.raises(Exception) as e:
         order.add_to_order(dish_mock)
     assert str(e.value) == "Dish is not on the menu"
@@ -37,7 +38,8 @@ def test_add_quantity_of_item_higher_than_availability():
     dish_mock.availability = 2
     dish_mock.dish_name = "Pizza"
     menu = Mock()
-    order = Order(menu)
+    receipt = Mock()
+    order = Order(menu, receipt)
     with pytest.raises(Exception) as e:
         order.add_to_order(dish_mock, 3)
     assert str(e.value) ==  "We only have 2 Pizza available, please reduce the quantity for your order."
@@ -56,7 +58,8 @@ def test_items_added_to_order():
     dish2_mock = Mock()
     dish2_mock.availability = 2
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock)
     order.add_to_order(dish2_mock)
     assert order.order_list == [[dish1_mock, 1], [dish2_mock,1]]
@@ -71,7 +74,8 @@ def test_item_added_to_order_already_on_order_but_available():
     dish1_mock = Mock()
     dish1_mock.availability = 3
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock)
     order.add_to_order(dish1_mock, 2)
     assert order.order_list == [[dish1_mock, 3]]
@@ -87,7 +91,8 @@ def test_item_added_to_order_already_on_order_and_not_enough_available():
     dish1_mock.availability = 3
     dish1_mock.dish_name = "Pizza"
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock)
     with pytest.raises(Exception) as e:
         order.add_to_order(dish1_mock, 3)
@@ -108,7 +113,8 @@ def test_item_can_be_removed_from_order():
     dish2_mock = Mock()
     dish2_mock.availability = 2
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock)
     order.add_to_order(dish2_mock)
     order.remove_from_order(dish1_mock)
@@ -122,12 +128,13 @@ we can reduce the quantity of that dish on the order
 def test_item_quantity_can_be_reduced_on_order():
     menu_mock = Mock()
     dish1_mock = Mock()
-    dish1_mock.availability = 3
+    dish1_mock.availability = 5
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
-    order.add_to_order(dish1_mock,3)
-    order.remove_from_order(dish1_mock)
-    assert order.order_list == [[dish1_mock, 2]]
+    receipt_mock = Mock()
+    order = Order(menu_mock,receipt_mock)
+    order.add_to_order(dish1_mock,4)
+    order.remove_from_order(dish1_mock,3)
+    assert order.order_list == [[dish1_mock, 1]]
 """
 Given I have an order,
 I can check if a dish is on the order
@@ -135,7 +142,8 @@ I can check if a dish is on the order
 def test_check_dish_on_order():
     menu_mock = Mock()
     dish1_mock = Mock()
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     assert order.check_dish_on_order(dish1_mock) == False
 
 
@@ -156,7 +164,8 @@ def test_view_order_in_formatted_way():
     dish2_mock.availability = 1
     dish2_mock.dish_name = "Chips"
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock, 2)
     order.add_to_order(dish2_mock, 1)
     dish1_mock.format_price.return_value = "£20.00"
@@ -175,7 +184,8 @@ def test_clear_contents_of_order():
     dish1_mock = Mock()
     dish1_mock.availability = 3
     menu_mock.check_dish.return_value = True
-    order = Order(menu_mock)
+    receipt_mock = Mock()
+    order = Order(menu_mock, receipt_mock)
     order.add_to_order(dish1_mock,3)
     order.clear_order()
     assert order.order_list == []
@@ -184,7 +194,7 @@ def test_clear_contents_of_order():
 Given I have an order, the order status is initially pending.
 """
 def test_order_status_is_initially_pending():
-    order = Order("")
+    order = Order("", "")
     assert order.status == "Pending"
 
 """
@@ -194,7 +204,8 @@ and we confirm the decrease_availability method is called
 (use mock class)
 """
 def test_order_status_updated_when_order_confirmed():
-    order = Order("")
+    receipt_mock = Mock()
+    order = Order("", receipt_mock)
     order.confirm_order()
     assert order.status == "Confirmed"
 

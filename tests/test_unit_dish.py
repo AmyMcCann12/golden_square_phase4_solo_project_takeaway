@@ -1,4 +1,4 @@
-from lib.dish import *
+from lib.dish import Dish
 import pytest
 
 """
