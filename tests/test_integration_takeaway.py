@@ -151,7 +151,7 @@ but this exceeds the availability,
 an error is raised
 """
 
-def test_add_item_already_on_order_updates_quantity():
+def test_add_item_already_on_order_but_exceeds_availability():
     dish1 = Dish("Pizza", 9, 3)
     menu = Menu()
     menu.add(dish1)
@@ -250,6 +250,23 @@ def test_order_confirmed_dish_availability_updated():
     assert dish2.availability == 7
     assert dish3.availability == 7
 
+"""
+Given an order is confirmed,
+the availability of each item is updated,
+if the availability of any item reaches 0
+that item is removed from the menu
+"""
+def test_order_confirmed_dish_menu_updated():
+    dish1 = Dish("Pizza", 10, 20)
+    dish2 = Dish("Chips", 3.50, 3)
+    menu = Menu()
+    menu.add(dish1)
+    menu.add(dish2)
+    order = Order(menu)
+    order.add_to_order(dish1)
+    order.add_to_order(dish2,3)
+    order.confirm_order()
+    assert menu.dishes == [dish1]
 """
 Given an order is confirmed, 
 we can calculate the total value of the order

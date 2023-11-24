@@ -1,4 +1,6 @@
 from lib.receipt import *
+from lib.menu import *
+from lib.dish import *
 
 class Order():
     def __init__(self, menu):
@@ -44,6 +46,8 @@ class Order():
         self.status = "Confirmed"
         for item in self.order_list:
             item[0].decrease_availability(item[1])
+            if item[0].availability == 0:
+                self.menu.remove(item[0])
         self.receipt = Receipt(self)
         return self.receipt.get_receipt()
 
