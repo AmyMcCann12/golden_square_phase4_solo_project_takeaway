@@ -45,6 +45,22 @@ See image design_class_system
         Side-effects:
             None
 
+    def increase_availability(self, increase):
+        Properties:
+            increase: int (amount to increase availability by)
+        Return:
+            No return
+        Side-effects:
+            self.availability property is updated
+    
+    def decrease_availability(self, reduction):
+        Properties:
+            reduction: int (amount to reduce availability by)
+        Return:
+            No return
+        Side-effects:
+            self.availability property is updated
+
 ## class Menu():
     def __init__(self):
         pass
@@ -74,6 +90,15 @@ See image design_class_system
         # Side-effects:
         #     None
         pass
+    
+    def check_dish(self, dish):
+        # Parameters:
+        #   dish: an instance of dish
+        # Returns:
+        #   Boolean: true if the dish is on the menu, false otherwise
+        # Side-effects:
+        #      None
+
 
 
 ## class Order():

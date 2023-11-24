@@ -1,5 +1,6 @@
 from lib.menu import *
 from unittest.mock import Mock
+import pytest
 
 """
 Given I have a menu
@@ -45,6 +46,18 @@ def test_add_dishes_and_remove_dishes_from_menu():
     menu.remove(dish1_mock)
     assert menu.dishes == [dish2_mock]
 
+
+"""
+Given I have a menu, if I try to remove a dish that is
+not on the menu, we receive an error
+"""
+def test_remove_dish_that_is_not_on_menu():
+    dish1 = Mock()
+    menu = Menu()
+    with pytest.raises(Exception) as e:
+        menu.remove(dish1)
+    assert str(e.value) == "Dish cannot be removed as it is not on the menu"
+
 """
 Given I have a menu
 I can view that menu in a formatted structure
@@ -60,3 +73,18 @@ def test_view_formatted_menu():
     menu.add(dish1_mock)
     menu.add(dish2_mock)
     assert menu.view_menu() == ["Pizza: £10.00", "Pasta: £5.50"]
+
+"""
+Given I have a menu, I can check if a certain
+dish is on the menu
+"""
+
+def test_check_and_confirm_if_dish_is_on_menu():
+    dish1_mock = Mock()
+    dish2_mock = Mock()
+    dish3_mock = Mock()
+    menu = Menu()
+    menu.add(dish1_mock)
+    menu.add(dish3_mock)
+    assert menu.check_dish(dish1_mock) == True
+    assert menu.check_dish(dish2_mock) == False

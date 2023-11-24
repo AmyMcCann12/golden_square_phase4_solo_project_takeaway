@@ -71,3 +71,23 @@ I can see a formatted version of the dish
 def test_format_dish_item():
     dish = Dish("Pizza", 2.50, 5)
     assert dish.format_item() == "Pizza: £2.50"
+
+"""
+Given a dish instance,
+I can increase its availability
+"""
+
+def test_increase_dish_availabilty():
+    dish = Dish("Pizza", 2.4, 10)
+    dish.increase_availability(5)
+    assert dish.availability == 15
+
+"""
+Given a dish instance,
+I can reduce its availability
+"""
+
+def test_reduce_dish_availability():
+    dish = Dish("Pasta", 5, 4)
+    dish.decrease_availability(2)
+    assert dish.availability == 2

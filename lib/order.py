@@ -1,58 +1,51 @@
+from lib.receipt import *
+
 class Order():
     def __init__(self, menu):
-        pass
+        self.menu = menu
+        self.order_list = []
+        self.status = "Pending"
+        self.receipt = None
 
     def add_to_order(self, dish, quantity = 1):
-        # Parameters:
-        #   dish: an instance of the dish
-        #   quantity: int (how many to add to order), default is 1
-        # Returns:
-        #   No return
-        # Side-effects:
-        #   Adds the dish (and quantity) to the order property of the self object
-        #   only if the dish is on the menu and the given quanityt is available
-        pass
+        if not self.menu.check_dish(dish):
+            raise Exception("Dish is not on the menu")
+        if self.check_dish_on_order(dish):
+            for item in self.order_list:
+                if item[0] == dish:
+                    if item[1] + quantity > dish.availability:
+                        raise Exception(f"We only have {dish.availability} {dish.dish_name} available, you already have {item[1]} on your order and you are trying to add an additional {quantity}, please reduce the quantity you are trying to add.")
+                    item[1] += quantity
+        else:
+            if dish.availability < quantity:
+                raise Exception(f"We only have {dish.availability} {dish.dish_name} available, please reduce the quantity for your order.")
+            self.order_list.append([dish, quantity])
 
     def remove_from_order(self, dish, quantity = 1):
-        # Parameters:
-        #   dish: an instance of the dish
-        #   quantity: int (how many to remove from order), default is 1
-        # Returns:
-        #   No return
-        # Side-effects:
-        #   Removes the dish from the order property of the self object
-        pass
+        dish_to_update = [dish for dish in self.order_list]
+        if quantity == dish_to_update[0][1]:
+            self.order_list.remove([dish, quantity])
+        else:
+            dish_to_update[0][1] -= quantity
+
+    def check_dish_on_order(self,dish):
+        return [item[0] for item in self.order_list if item[0] == dish] != []
 
     def view_order(self):
-        # Parameters:
-        #   None
-        # Returns:
-        #   a formatted list of dish names 
-        #       e.g 1 x Pasta, 2 x Pizza, 1 x Garlic Bread
-        # Side-effects:
-        #   None
-        pass
+        formatted_order = ""
+        for item in self.order_list:
+            formatted_order += (f"{item[1]} x {item[0].dish_name}: {item[0].format_price(item[1] * item[0].price)}\n")
+        return formatted_order
 
     def clear_order(self):
-        # Parameters:
-        #   None
-        # Returns:
-        #   None
-        # Side-effects:
-        #   Empties the order property
-        pass
+        self.order_list = []
 
     def confirm_order(self):
-        # Parameters:
-        #   None
-        # Returns:
-        #   formatted receipt
-        # Side-effects:
-        #   Deducts the quantity of items from the availability properties
-        #   of the item class
-        #   Creates an instance of the receipt class
-        pass
-
+        self.status = "Confirmed"
+        for item in self.order_list:
+            item[0].decrease_availability(item[1])
+        self.receipt = Receipt(self)
+        return self.receipt.get_receipt()
 
 
 
